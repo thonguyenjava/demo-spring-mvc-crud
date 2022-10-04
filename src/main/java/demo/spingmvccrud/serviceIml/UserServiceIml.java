@@ -4,14 +4,16 @@ import demo.spingmvccrud.entity.User;
 import demo.spingmvccrud.repository.UserRepository;
 import demo.spingmvccrud.service.UserService;
 import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
 @Component
 @AllArgsConstructor
-@Slf4j
+@CacheConfig(cacheNames = {"user"})
 public class UserServiceIml implements UserService {
     private UserRepository rp;
 
@@ -26,12 +28,14 @@ public class UserServiceIml implements UserService {
     }
 
     @Override
+    @CacheEvict(value = "user", key = "#id")
     public List<User> deleteUser(Long id) {
         rp.delete(getUserById(id));
         return getAllUsers();
     }
 
     @Override
+    @Cacheable(key = "#id")
     public User getUserById(Long id) {
         return rp.findUserById(id);
     }
